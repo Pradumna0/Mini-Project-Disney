@@ -57,5 +57,6 @@ spec:
       storage: 1Gi
 
 
-#here I am making changes for newBranch changes test
+#Here I am making changes for newBranch changes test.In second time because the first time I did't push newBranch in my code 
+#That's why I am making some changes now.
 # volumeMode: Block  -> Volume presented to the container as a block device((Raw Storage->Oracle mongoDB)) (own filesyatem on the block storage)
