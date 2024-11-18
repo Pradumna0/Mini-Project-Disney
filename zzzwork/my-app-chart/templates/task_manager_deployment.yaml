@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:              # with the help of metadata we can uniquelu identify the object like name 
+  name: mini-web
+spec:
+  replicas: {{ .Values.replicaCount }}   #3
+  selector:                     #To match pods managed by this deployment
+    matchLabels:               #Specifies a lable(S) to match
+      app: mini-web
+  template:                   # the pod template  used to create the pods created by this deployment
+    metadata:
+      labels:
+        app: mini-web
+    spec:                         # define the pod specification
+      containers:                       #describe the container within the pod
+      - name: mini-web
+        image: {{ .Values.web.repository }} 
+        # image: pradumna0/mini-web:50 #15    
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_PASSWORD
+          # value: "1234567"
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        
+---
+apiVersion: v1
+kind: Service     # Expose the application to network traffic 
+metadata:
+  name: web-service
+spec:                     #Describe the service specification
+  ports:                    #List of port expose by this service 
+  - name: http                     #the name of port.
+    # port: 8000                     #external port 
+    # targetPort: 8000               #internal port(app inside the pod)  service wil forword the traffic in this pod
+    port: {{ .Values.service.port }}                     
+    targetPort: {{ .Values.service.targetPort }}  
+  selector:                 #which pods connect to using labels
+    app: mini-web                #traffic will routed to pods with the label app:mini-web
+  # type: LoadBalancer  
+  type: {{ .Values.service.type }} 
+
+
+
+
+#ClusterIP -> Application accessible within the cluster.
+#NodePort -> Service becomes accessible from outside the cluster by requesting <NodeIP>:<NodePort>   (withou cloud)(30000-32776) 
+#            we don't have a load balancer still can external access
+
+#LoadBalancer-> Automatically Provisions an External Load balancer (AWS ELB, GCP Balancer)   
+
+#ExternalName ->  Map the services to a DNS name 
+
+
+#Ingress 

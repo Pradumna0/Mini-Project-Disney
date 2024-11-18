@@ -1,0 +1,17 @@
+# Dockerfile for Redis with custom configuration
+FROM redis:latest
+
+
+# Set the working directory for instruction for the dockerfile 
+WORKDIR /etc/redis
+
+# Set the Redis configuration
+COPY redis.conf .
+
+# Expose the Redis port
+EXPOSE 6379     
+                #Container will listen on port 6379 
+# Run Redis server
+CMD ["redis-server", "/etc/redis/redis.conf"]    
+# CMD ["redis-server", "redis.conf"]    
+                                        #Launch  the redis server and applies the redis.conf setting.

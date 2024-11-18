@@ -1,0 +1,48 @@
+apiVersion: apps/v1   # Kubernetes api versuion used for deployment resources.
+kind: Deployment
+metadata:
+  name: redis    # sets the name of deployment as redis
+spec:             #define the desire state of deployment.
+  replicas: 1     #only one replica(pod) created 
+  selector:       #Identify the pod  that belongs to this deployment with the help of labels.
+    matchLabels:
+      app: redis    # Any pod with the lable app:redis should be managed by this deployment.
+  template:        
+    metadata:      #provide metadata for the pod
+      labels:
+        app: redis
+    spec:             #Define the specification of the pod that the pod should run.
+      containers:
+      - name: redis   # name of the container 
+        # image: pradumna0/mini-redis:51  # 51
+        image: {{ .Values.redis.repository }}
+        volumeMounts:           
+        - mountPath: /data     # Mount the volume at the /data directory inside the container  #data
+          name: redis-storage
+        env:                # ENV variable for container
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_PASSWORD
+        command: ["redis-server", "/etc/redis/redis.conf"]    
+        args: ["--requirepass", "$(REDIS_PASSWORD)"]
+      volumes:
+      - name: redis-storage
+        persistentVolumeClaim:              #nfs , emptyDir->Temporary storage , ConfigMap->env varible,secret
+          claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:    # list of port exposed by the service.
+  - name: tcp
+    port: {{ .Values.redisService.port }}
+   # port: 6379   #Expose port. outside the world . Act as a external port for teh service. client can access the service using this port 
+    targetPort: {{ .Values.redisService.targetPort }}
+    #targetPort: 6379    # Route traffic . or container is acctually listening.(Internal port ) where the application insiude the container listening for request
+  selector:
+    app: redis 
+
