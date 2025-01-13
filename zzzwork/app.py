@@ -16,7 +16,6 @@ REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 # print(REDIS_PASSWORD)
 # REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
 # REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
-
 # Connect to Redis and check if the password is correct
 try:
     r = redis.Redis(host='redis', port=6379, password=REDIS_PASSWORD, decode_responses=True)
